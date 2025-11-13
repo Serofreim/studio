@@ -1,5 +1,5 @@
 import { Outlet, createRootRoute } from "@tanstack/react-router";
-import { useSettings } from "@/hook/useSettings";
+import { useSettings } from "@/hooks/useSettings";
 import { Spinner } from "@/components/ui/spinner";
 
 export const Route = createRootRoute({

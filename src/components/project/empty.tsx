@@ -14,7 +14,7 @@ import {
   WarningCircleIcon,
 } from "@phosphor-icons/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { pickRenPyProject } from "@/hook/useProjectPicker";
+import { pickRenPyProject } from "@/hooks/useProjectPicker";
 import { useState } from "react";
 
 interface ProjectEmptyPathProps {
@@ -26,26 +26,23 @@ export function ProjectEmptyPath({ onOpenProject }: ProjectEmptyPathProps) {
   const [error, setError] = useState<string | null>(null);
 
   const handleOpenProject = async () => {
-    console.log("Handle open project clicked");
     setIsLoading(true);
     setError(null);
     try {
       const selectedPath = await pickRenPyProject();
-      console.log("Selected path:", selectedPath);
       if (selectedPath) {
-        console.log("Opening project with path:", selectedPath);
         await onOpenProject(selectedPath);
-        console.log("Project opened successfully");
+        // Wait a moment for state to propagate
+        await new Promise((resolve) => setTimeout(resolve, 100));
       } else {
-        console.log("No path selected or validation failed");
         setError(
           "Invalid Ren'Py project. Please ensure the folder contains a 'game' directory."
         );
+        setIsLoading(false);
       }
     } catch (err) {
       console.error("Error opening project:", err);
       setError(`Error: ${err}`);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -65,16 +62,16 @@ export function ProjectEmptyPath({ onOpenProject }: ProjectEmptyPathProps) {
         </EmptyHeader>
         <EmptyContent>
           <div className="space-x-2">
-            <Button onClick={handleOpenProject} disabled={isLoading}>
-              {isLoading ? "Opening..." : "Open a Project"}
-            </Button>
             <Button
               variant="outline"
               onClick={() =>
                 openUrl("https://serofreim.osias.dev/docs/getting-started")
               }
             >
-              Learn from Docs <ArrowSquareOutIcon />
+              Learn from Documentation <ArrowSquareOutIcon />
+            </Button>
+            <Button onClick={handleOpenProject} disabled={isLoading}>
+              {isLoading ? "Opening..." : "Open a Project"}
             </Button>
           </div>
         </EmptyContent>
