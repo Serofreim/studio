@@ -1,0 +1,90 @@
+import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  FolderSimpleIcon,
+  ArrowSquareOutIcon,
+  WarningCircleIcon,
+} from "@phosphor-icons/react";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import { pickRenPyProject } from "@/hook/useProjectPicker";
+import { useState } from "react";
+
+interface ProjectEmptyPathProps {
+  onOpenProject: (path: string) => Promise<void>;
+}
+
+export function ProjectEmptyPath({ onOpenProject }: ProjectEmptyPathProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleOpenProject = async () => {
+    console.log("Handle open project clicked");
+    setIsLoading(true);
+    setError(null);
+    try {
+      const selectedPath = await pickRenPyProject();
+      console.log("Selected path:", selectedPath);
+      if (selectedPath) {
+        console.log("Opening project with path:", selectedPath);
+        await onOpenProject(selectedPath);
+        console.log("Project opened successfully");
+      } else {
+        console.log("No path selected or validation failed");
+        setError(
+          "Invalid Ren'Py project. Please ensure the folder contains a 'game' directory."
+        );
+      }
+    } catch (err) {
+      console.error("Error opening project:", err);
+      setError(`Error: ${err}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="px-4 flex flex-col justify-center items-center min-h-screen min-w-screen">
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <FolderSimpleIcon />
+          </EmptyMedia>
+          <EmptyTitle>Open a Ren&apos;py Project</EmptyTitle>
+          <EmptyDescription>
+            You haven&apos;t open any project yet. Get started by opening a
+            project.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <div className="space-x-2">
+            <Button onClick={handleOpenProject} disabled={isLoading}>
+              {isLoading ? "Opening..." : "Open a Project"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() =>
+                openUrl("https://serofreim.osias.dev/docs/getting-started")
+              }
+            >
+              Learn from Docs <ArrowSquareOutIcon />
+            </Button>
+          </div>
+        </EmptyContent>
+      </Empty>
+      {error && (
+        <Alert variant="destructive" className="mb-4 text-left">
+          <WarningCircleIcon />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+    </div>
+  );
+}

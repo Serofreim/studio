@@ -12,9 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "serofreim-studio",
-        "width": 800,
-        "height": 600
+        "title": "Serofreim Studio",
+        "width": 960,
+        "height": 540
       }
     ],
     "security": {
